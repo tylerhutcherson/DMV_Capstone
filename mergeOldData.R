@@ -37,7 +37,7 @@ vehicles$CrashDate <- as.Date(vehicles$CrashDate, "%m/%d/%Y")
 passengers$CrashId <- as.numeric(as.character(passengers$CrashId))
 passengers$CrashDate <- as.Date(passengers$CrashDate, "%m/%d/%Y")
 
-### !!!!! ####
+### !!!!! ###
 pedestrians$CrashId <- as.numeric(as.character(pedestrians$CrashId))
 pedestrians$CrashDate <- as.Date(pedestrians$CrashDate, "%m/%d/%Y")
 
