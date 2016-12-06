@@ -22,5 +22,6 @@ Collaborative work for 2016-2017 UVA DSI Capstone Project.
   
 - plots.R
   Created different plots to help us understand the problems. 
-  > plot of number of car crashes by month for each year from 2010 to 2015 (different plots for fatal, injury and property damage crashes) 
+  There are two types of plots: 
+  > plot of number of car crashes by month for each year from 2010 to 2015 (different plots for fatal, injury and property damage crashes)
   > plot of car crash by location for each year from 2010 to 2015 (different plots for fatal, injury and property damage crashes)
