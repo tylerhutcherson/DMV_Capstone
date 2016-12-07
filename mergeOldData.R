@@ -56,7 +56,8 @@ propertyDamage$CrashId <- as.numeric(as.character(propertyDamage$CrashId))
 propertyDamage$CrashDate <- as.Date(propertyDamage$CrashDate, "%m/%d/%Y")
 propertyDamage$DamagedPropertyRepairCost <- propertyDamage$DamagedPropertyRepairCost %>% map(function(x){
   substring(x, 2) %>% 
-    as.numeric()
+    as.numeric() %>% 
+    unlist()
 })
 #sum(unlist(propertyDamage$DamagedPropertyRepairCost), na.rm=TRUE)  < $$312,857,876 in damage
 
@@ -85,11 +86,18 @@ vehicle.comm <- merge(vehicles, commercial, all.x = TRUE, by=c("CrashId","Vehicl
 
 ### 3. merge location and property damage ###
 location.pd <- merge(location, propertyDamage, all.x = TRUE, by=c("CrashId", "CrashDate"))
+
 ### 4. merge 3 and indicator ###
-merge <- merge(location.pd, indicator, all.x = TRUE, by=c("CrashId", "CrashDate","Year","CrashTypeName"))
+#merge <- merge(location.pd, indicator, all.x = TRUE, by=c("CrashId", "CrashDate","Year","CrashTypeName"))
+
 ### 5. merge 4&2 ###
-merge <- merge(merge, vehicle.comm, all.x = TRUE, by=c("CrashId", "CrashDate"))
+merge <- merge(location.pd, vehicle.comm, all.x = TRUE, by=c("CrashId", "CrashDate"))
+# gained almost 2x observations due to multiple vehicles per crash
+
 ### 6. merge 5&1 ###
 final <- merge(merge, driver.license, all = TRUE, by = c("CrashId", "CrashDate", "VehicleId","VehicleDriverId"))
-str(final)
-rm(list=setdiff(ls(), c("final","passengers","pedestrians")))
+#  gained ~8000 more observations due to multiple drivers and licenses
+
+#str(final)
+#rm(list=setdiff(ls(), c("final","passengers","pedestrians")))
+write.csv(final,"final_crash.csv")
