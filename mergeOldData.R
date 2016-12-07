@@ -1,14 +1,34 @@
-setwd("/Users/tomoei/Dropbox/DMV project/")
-load("data/location.RData")
-load("data/drivers.RData")
-load("data/licenses.RData")
-load("data/commercial.RData")
-load("data/vehicles.RData")
-load("data/propertyDamage.RData")
-load("data/indicator.RData")
-load("data/pedestrian.RData")
-load("data/passengers.RData")
+#setwd("/Users/tomoei/Dropbox/DMV project/")
+#load("data/location.RData")
+#load("data/drivers.RData")
+#load("data/licenses.RData")
+#load("data/commercial.RData")
+#load("data/vehicles.RData")
+#load("data/propertyDamage.RData")
+#load("data/indicator.RData")
+#load("data/pedestrian.RData")
+#load("data/passengers.RData")
+library(readr)
+library(purrr)
+library(dplyr)
 
+# Read in CSV files from root directory
+location <- read_csv("location.csv") %>% 
+  select(-c(1))
+drivers <- read_csv("drivers.csv") %>% 
+  select(-c(1))
+licenses <- read_csv("licenses.csv") %>% 
+  select(-c(1))
+commercial <- read_csv("commercial.csv") %>% 
+  select(-c(1))
+vehicles <- read_csv("vehicles.csv") %>% 
+  select(-c(1))
+propertyDamage <- read_csv("propertyDamage.csv") %>% 
+  select(-c(1))
+pedestrian <- read_csv("pedestrian.csv") %>% 
+  select(-c(1))
+passengers <- read_csv("passengers.csv") %>% 
+  select(-c(1))
 
 location$CrashId <- as.numeric(as.character(location$CrashId))
 location$CrashDate <- as.Date(location$CrashDate, "%m/%d/%Y")
