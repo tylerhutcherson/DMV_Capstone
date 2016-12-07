@@ -12,7 +12,7 @@ library(readr)
 library(purrr)
 library(dplyr)
 
-# Read in CSV files from root directory
+## Read in CSV files from root directory
 location <- read_csv("location.csv") %>% 
   select(-c(1))
 drivers <- read_csv("drivers.csv") %>% 
@@ -25,28 +25,32 @@ vehicles <- read_csv("vehicles.csv") %>%
   select(-c(1))
 propertyDamage <- read_csv("propertyDamage.csv") %>% 
   select(-c(1))
-pedestrian <- read_csv("pedestrian.csv") %>% 
+pedestrians <- read_csv("pedestrians.csv") %>% 
   select(-c(1))
 passengers <- read_csv("passengers.csv") %>% 
   select(-c(1))
 
+## Location
 location$CrashId <- as.numeric(as.character(location$CrashId))
 location$CrashDate <- as.Date(location$CrashDate, "%m/%d/%Y")
 # delete obs with NA in every colunmn
 # valid crash Id number -> 7 digits
 location <- location[rowSums(!is.na(location)) != 0,]
-length(unique(location$CrashId))
+length(unique(location$CrashId)) #728274 unique crashes total
 
+## Drivers
 drivers$CrashId <- as.numeric(as.character(drivers$CrashId))
 drivers$CrashDate <- as.Date(drivers$CrashDate, "%m/%d/%Y")
 # valid crash Id number -> 7 digits
 drivers <- drivers[drivers$CrashId >= 1000000,]
-length(unique(drivers$VehicleDriverId))
+length(unique(drivers$VehicleDriverId)) #1331396 unique drivers total
 
-names(license)[3] <- "VehicleDriverId"
-license$CrashId <- as.numeric(as.character(license$CrashId))
-license$CrashDate <- as.Date(license$CrashDate, "%m/%d/%Y")
+## Licenses
+names(licenses)[3] <- "VehicleDriverId"
+licenses$CrashId <- as.numeric(as.character(licenses$CrashId))
+licenses$CrashDate <- as.Date(licenses$CrashDate, "%m/%d/%Y")
 
+## Property Damage
 propertyDamage$CrashId <- as.numeric(as.character(propertyDamage$CrashId))
 propertyDamage$CrashDate <- as.Date(propertyDamage$CrashDate, "%m/%d/%Y")
 cost <- sapply(propertyDamage$DamagedPropertyRepairCost[!is.na(propertyDamage$DamagedPropertyRepairCost)], function(x) as.numeric(substring(x, 2)))
