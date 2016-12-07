@@ -124,6 +124,7 @@ pedestrian10.12 <- read.table('raw_dmv_data/5 - uva-pedestrian 2010 - 2012.txt',
 names(pedestrian10.12)[3] <- "CrashId"
 pedestrian13.14 <- pedestrian13.14[,names(pedestrian15)]
 pedestrian10.12 <- pedestrian10.12[,names(pedestrian15)]
+## Likely will not include in analysis!
 
 ########################################
 ############### 6. License #############
@@ -132,6 +133,8 @@ license15 <- read.table('raw_dmv_data/6 - uva-licenseclass 2015.txt',sep="~",fil
 license13.14 <- read.table('raw_dmv_data/6-uva-licenseclass 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 license10.12 <- read.table('raw_dmv_data/6 - uva-licenseclass 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 names(license15)[3] = "VehicleDriverID"
+licenses <- rbind(license15,license13.14,license10.12)
+#not sure why there are less license ID's than drivers... maybe only VA drivers?
 
 ########################################
 ########### 7. PropertyDamage ##########
