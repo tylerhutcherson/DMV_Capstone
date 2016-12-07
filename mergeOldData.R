@@ -56,9 +56,8 @@ propertyDamage$CrashId <- as.numeric(as.character(propertyDamage$CrashId))
 propertyDamage$CrashDate <- as.Date(propertyDamage$CrashDate, "%m/%d/%Y")
 propertyDamage$DamagedPropertyRepairCost <- propertyDamage$DamagedPropertyRepairCost %>% map(function(x){
   substring(x, 2) %>% 
-    as.numeric() %>% 
-    unlist()
-})
+    as.numeric() 
+}) %>% unlist()
 #sum(unlist(propertyDamage$DamagedPropertyRepairCost), na.rm=TRUE)  < $$312,857,876 in damage
 
 #indicator$CrashId <- as.numeric(as.character(indicator$CrashId))
