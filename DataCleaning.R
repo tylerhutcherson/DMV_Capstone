@@ -1,5 +1,8 @@
-setwd("/Users/tomoei/Dropbox/DMV project/")
+########################
+#### DataCleaning.R ####
+########################
 
+### Raw data notes
 # 1. crash location - 10-12 has four extra columns
 # 2. vehicle - can merge
 # 3. driver - can merge
@@ -16,13 +19,13 @@ setwd("/Users/tomoei/Dropbox/DMV project/")
 ########################################
 # 2015 location data: latitude and longitude only have two decimal places
 require(plyr)
-location15 <- read.table('data/1 - uva-crash-crashlocation 2015.txt',sep="\t",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-location14 <- read.table('data/1-uva-crash-crashlocation-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-location13 <- read.table('data/1-uva-crash-crashlocation-2013.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-location10.12 <- read.table('data/1 - uva-crash-crashlocation 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+location15 <- read.table('raw_dmv_data/1 - uva-crash-crashlocation 2015.txt',sep="\t",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+location14 <- read.table('raw_dmv_data/1-uva-crash-crashlocation-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+location13 <- read.table('raw_dmv_data/1-uva-crash-crashlocation-2013.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+location10.12 <- read.table('raw_dmv_data/1 - uva-crash-crashlocation 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 
 # 10-12 has 4 more columns #
-location10.12 <- location10.12[,-c(11,12,16,20)]
+location10.12 <- location10.12[,-c(11,12,16,20)] #delete extra columns
 colnames(location10.12)[c(14,17,34,36)] <- c("RouteOrStreet","MileMarker","CrashTypeName","County.City.Town")
 colnames(location15)[c(11,12,14,35,36,37)] <- c("GPSLatitude","GPSLongitude","RouteOrStreet","Jurisdiction","County.City.Town","County")
 colnames(location13)[34] <- "CrashTypeName"
@@ -35,19 +38,21 @@ levels(location14$CrashTypeName) <- c("Fatal Crash","Injury Crash","Property Dam
 
 # combine location
 location <- rbind(location15, location14, location13, location10.12)
+location <- location[,-c(15)]
 detach("package:plyr", unload=TRUE) 
+#sum(is.na(location))/(sum(is.na(location))+sum(!is.na(location))) #4.2% values missing!
 
 ########################################
 ############## 2. Vehicle ##############
 ########################################
 # 2010 no vehicle year #
-vehicle15 <- read.table('data/2 - uva-vehicle 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-vehicle13.14 <- read.table('data/2-uva-vehicle 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-vehicle11.12 <- read.table('data/2 - uva-vehicle 2011-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-vehicle10 <- read.table('data/2 - uva-vehicle 2010.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+vehicle15 <- read.table('raw_dmv_data/2 - uva-vehicle 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+vehicle13.14 <- read.table('raw_dmv_data/2-uva-vehicle 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+vehicle11.12 <- read.table('raw_dmv_data/2 - uva-vehicle 2011-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+vehicle10 <- read.table('raw_dmv_data/2 - uva-vehicle 2010.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 
-vehicle10$VehicleYear <- NA
-vehicle10 <- vehicle10[,c(1:4,30,5:29)]
+vehicle10$VehicleYear <- NA  #add NA for missing year
+vehicle10 <- vehicle10[,c(1:4,30,5:29)] #reorder
 vehicles <- rbind(vehicle15, vehicle13.14, vehicle11.12, vehicle10)
 
 vehicle$VehicleMake <- toupper(vehicle$VehicleMake)
@@ -91,9 +96,9 @@ for (i in 1:nrow(vehicle)){
 ########################################
 ############### 3. Driver ##############
 ########################################
-driver15 <- read.table('data/3 - uva-driver 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-driver13.14 <- read.table('data/3-uva-driver 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-driver10.12 <- read.table('data/3 -uva-driver 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+driver15 <- read.table('raw_dmv_data/3 - uva-driver 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+driver13.14 <- read.table('raw_dmv_data/3-uva-driver 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+driver10.12 <- read.table('raw_dmv_data/3 -uva-driver 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 names(driver15)[7] <- "CommercialDriverLicenseID"
 drivers <- rbind(driver15, driver13.14, driver10.12)
 
@@ -101,18 +106,18 @@ drivers <- rbind(driver15, driver13.14, driver10.12)
 ########################################
 ############# 4. Passenger #############
 ########################################
-passenger15 <- read.table('data/4 - uva-passenger 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-passenger13.14 <- read.table('data/4-uva-passenger 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-passenger10.12 <- read.table('data/4 - uva-passsenger 2010 - 2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+passenger15 <- read.table('raw_dmv_data/4 - uva-passenger 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+passenger13.14 <- read.table('raw_dmv_data/4-uva-passenger 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+passenger10.12 <- read.table('raw_dmv_data/4 - uva-passsenger 2010 - 2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 passenger13.14 <- passenger13.14[,-c(5)]
 passengers < - rbind(passenger15, passenger13.14, passenger10.12)
 
 ########################################
 ############# 5. Pedestrian ############
 ########################################
-pedestrian15 <- read.table('data/5 - uva-pedestrain2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-pedestrian13.14 <- read.table('data/5-uva-pedestrian 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-pedestrian10.12 <- read.table('data/5 - uva-pedestrian 2010 - 2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+pedestrian15 <- read.table('raw_dmv_data/5 - uva-pedestrain2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+pedestrian13.14 <- read.table('raw_dmv_data/5-uva-pedestrian 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+pedestrian10.12 <- read.table('raw_dmv_data/5 - uva-pedestrian 2010 - 2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 
 names(pedestrian10.12)[3] <- "CrashId"
 pedestrian13.14 <- pedestrian13.14[,names(pedestrian15)]
@@ -121,34 +126,34 @@ pedestrian10.12 <- pedestrian10.12[,names(pedestrian15)]
 ########################################
 ############### 6. License #############
 ########################################
-license15 <- read.table('data/6 - uva-licenseclass 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-license13.14 <- read.table('data/6-uva-licenseclass 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-license10.12 <- read.table('data/6 - uva-licenseclass 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+license15 <- read.table('raw_dmv_data/6 - uva-licenseclass 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+license13.14 <- read.table('raw_dmv_data/6-uva-licenseclass 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+license10.12 <- read.table('raw_dmv_data/6 - uva-licenseclass 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 names(license15)[3] = "VehicleDriverID"
 
 ########################################
 ########### 7. PropertyDamage ##########
 ########################################
-damage15 <- read.table('data/7 - uva-propertydamage 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-damage13.14 <- read.table('data/7-uva-damageproperty 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-damage10.12 <- read.table('data/7 - uva - PropertyDamage 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+damage15 <- read.table('raw_dmv_data/7 - uva-propertydamage 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+damage13.14 <- read.table('raw_dmv_data/7-uva-damageproperty 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+damage10.12 <- read.table('raw_dmv_data/7 - uva - PropertyDamage 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 
 ########################################
 ############# 8. Commercial ############
 ########################################
-commercial15 <- read.table('data/8 - uva-vehiclecommercial 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-commercial13.14 <- read.table('data/8-uva-vehiclecommercial 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-commercial10.12 <- read.table('data/8 - uva-vehiclecommercial 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+commercial15 <- read.table('raw_dmv_data/8 - uva-vehiclecommercial 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+commercial13.14 <- read.table('raw_dmv_data/8-uva-vehiclecommercial 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+commercial10.12 <- read.table('raw_dmv_data/8 - uva-vehiclecommercial 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 commercial10.12 <- commercial10.12[,-c(9)]
 commercial13.14 <- commercial13.14[,-c(9)]
 
 ########################################
 ############## 9. Indicator ############
 ########################################
-indicator15 <- read.table('data/9 - uva-vt-indicator 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+indicator15 <- read.table('raw_dmv_data/9 - uva-vt-indicator 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 # 11-14 has CrashDateTime LrgTruck OlderDriverInv MonthName
-indicator11.14 <- read.table('data/9-uva-vt-indicator-crashid 2011-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-indicator10 <- read.table('data/9-uvavt--indicator 2010 11-08-13.txt',sep="\t",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+indicator11.14 <- read.table('raw_dmv_data/9-uva-vt-indicator-crashid 2011-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+indicator10 <- read.table('raw_dmv_data/9-uvavt--indicator 2010 11-08-13.txt',sep="\t",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 
 ########################################
 ############### Merge data #############
