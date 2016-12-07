@@ -49,15 +49,19 @@ length(unique(drivers$VehicleDriverId)) #1331396 unique drivers total
 names(licenses)[3] <- "VehicleDriverId"
 licenses$CrashId <- as.numeric(as.character(licenses$CrashId))
 licenses$CrashDate <- as.Date(licenses$CrashDate, "%m/%d/%Y")
+length(unique(licenses$VehicleDriverId)) #134334 unique license information total, does not match above number...
 
 ## Property Damage
 propertyDamage$CrashId <- as.numeric(as.character(propertyDamage$CrashId))
 propertyDamage$CrashDate <- as.Date(propertyDamage$CrashDate, "%m/%d/%Y")
-cost <- sapply(propertyDamage$DamagedPropertyRepairCost[!is.na(propertyDamage$DamagedPropertyRepairCost)], function(x) as.numeric(substring(x, 2)))
-sum(cost)
+propertyDamage$DamagedPropertyRepairCost <- propertyDamage$DamagedPropertyRepairCost %>% map(function(x){
+  substring(x, 2) %>% 
+    as.numeric()
+})
+#sum(unlist(propertyDamage$DamagedPropertyRepairCost), na.rm=TRUE)  < $$312,857,876 in damage
 
-indicator$CrashId <- as.numeric(as.character(indicator$CrashId))
-indicator$CrashDate <- as.Date(indicator$CrashDate, "%m/%d/%Y")
+#indicator$CrashId <- as.numeric(as.character(indicator$CrashId))
+#indicator$CrashDate <- as.Date(indicator$CrashDate, "%m/%d/%Y")
 
 commercial$CrashId <- as.numeric(as.character(commercial$CrashId))
 commercial$CrashDate <- as.Date(commercial$CrashDate, "%m/%d/%Y")
@@ -73,9 +77,12 @@ pedestrians$CrashDate <- as.Date(pedestrians$CrashDate, "%m/%d/%Y")
 pedestrians <- pedestrians[pedestrians$CrashId >= 1000000,]
 
 ### 1. merge driver and license ###
-driver.license <- merge(drivers, license, all.x = TRUE, by=c("CrashId","VehicleDriverId", "CrashDate"))
+driver.license <- merge(drivers, licenses, all.x = TRUE, by=c("CrashId","VehicleDriverId", "CrashDate"))
+#increased observation count because some drivers have two licenses
+
 ### 2. merge vehicle and commercial ###
 vehicle.comm <- merge(vehicles, commercial, all.x = TRUE, by=c("CrashId","VehicleId", "CrashDate","VehicleCommercialID"))
+
 ### 3. merge location and property damage ###
 location.pd <- merge(location, propertyDamage, all.x = TRUE, by=c("CrashId", "CrashDate"))
 ### 4. merge 3 and indicator ###
