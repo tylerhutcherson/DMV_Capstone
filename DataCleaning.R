@@ -1,6 +1,7 @@
 ########################
 #### DataCleaning.R ####
 ########################
+library(purrr)
 
 ### Raw data notes
 # 1. crash location - 10-12 has four extra columns
@@ -56,42 +57,43 @@ vehicle10 <- vehicle10[,c(1:4,30,5:29)] #reorder
 vehicles <- rbind(vehicle15, vehicle13.14, vehicle11.12, vehicle10)
 
 vehicles$VehicleMake <- toupper(vehicles$VehicleMake) #make VehicleMake upper case
-## clean up vehicle make -- NOT going to use
-test <- c()
-for (i in 1:nrow(vehicle)){
-  if (grepl("^T[0O]+[Y]", vehicle$VehicleMake[i]) == TRUE){
+
+#clean up vehicle make -- NOT going to use
+#test <- c()
+#for (i in 1:nrow(vehicle)){
+#  if (grepl("^T[0O]+[Y]", vehicle$VehicleMake[i]) == TRUE){
     #test <- c(test, vehicle$VehicleMake[i])
-    vehicle$VehicleMake[i] <- "TOYOTA"
-  } else if (grepl("^C(H)?RY", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "CHRYSLER"
-  } else if (grepl("^V+((OLK)|W)+", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "VW"
-  } else if (grepl("^CH[E]?V", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "CHEVY"
-  } else if (grepl("^LINC", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "LINOLN"
-  } else if (grepl("(BENZ)|(MERC)", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "MERCEDES BENZ"
-  } else if (grepl("^LEX", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "LEXUS"
-  } else if (grepl("^NIS", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "NISSAN"
-  } else if (grepl("^H(Y|U)+(N|(ND)|(DAI))?", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "HYUNDAI"
-  } else if (grepl("^DOD", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "DODGE"
-  } else if (grepl("^(VO)+(V)+", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "VOLVO"
-  } else if (grepl("^BUI", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "BUICK"
-  } else if (grepl("^MAZ", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "MAZDA"
-  } else if (grepl("^MIT", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "MITSUBISHI"
-  } else if (grepl("^(HD)|(HON)", vehicle$VehicleMake[i]) == TRUE){
-    vehicle$VehicleMake[i] <- "HONDA"
-  }
-}
+#    vehicle$VehicleMake[i] <- "TOYOTA"
+##  } else if (grepl("^C(H)?RY", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "CHRYSLER"
+#  } else if (grepl("^V+((OLK)|W)+", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "VW"
+#  } else if (grepl("^CH[E]?V", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "CHEVY"
+#  } else if (grepl("^LINC", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "LINOLN"
+#  } else if (grepl("(BENZ)|(MERC)", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "MERCEDES BENZ"
+#  } else if (grepl("^LEX", vehicle$VehicleMake[i]) == TRUE){
+###    vehicle$VehicleMake[i] <- "LEXUS"
+#  } else if (grepl("^NIS", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "NISSAN"
+#  } else if (grepl("^H(Y|U)+(N|(ND)|(DAI))?", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "HYUNDAI"
+#  } else if (grepl("^DOD", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "DODGE"
+#  } else if (grepl("^(VO)+(V)+", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "VOLVO"
+#  } else if (grepl("^BUI", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "BUICK"
+##  } else if (grepl("^MAZ", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "MAZDA"
+#  } else if (grepl("^MIT", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "MITSUBISHI"
+#  } else if (grepl("^(HD)|(HON)", vehicle$VehicleMake[i]) == TRUE){
+#    vehicle$VehicleMake[i] <- "HONDA"
+#  }
+#}
 
 ########################################
 ############### 3. Driver ##############
@@ -125,6 +127,7 @@ names(pedestrian10.12)[3] <- "CrashId"
 pedestrian13.14 <- pedestrian13.14[,names(pedestrian15)]
 pedestrian10.12 <- pedestrian10.12[,names(pedestrian15)]
 ## Likely will not include in analysis!
+pedestrians <- rbind(pedestrian15,pedestrian13.14,pedestrian10.12)
 
 ########################################
 ############### 6. License #############
@@ -142,6 +145,7 @@ licenses <- rbind(license15,license13.14,license10.12)
 damage15 <- read.table('raw_dmv_data/7 - uva-propertydamage 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 damage13.14 <- read.table('raw_dmv_data/7-uva-damageproperty 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 damage10.12 <- read.table('raw_dmv_data/7 - uva - PropertyDamage 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+damage <- rbind(damage15,damage13.14,damage10.12)
 
 ########################################
 ############# 8. Commercial ############
