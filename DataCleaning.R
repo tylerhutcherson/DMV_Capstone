@@ -41,7 +41,7 @@ levels(location14$CrashTypeName) <- c("Fatal Crash","Injury Crash","Property Dam
 location <- rbind(location15, location14, location13, location10.12)
 location <- location[,-c(15)]
 detach("package:plyr", unload=TRUE) 
-#sum(is.na(location))/(sum(is.na(location))+sum(!is.na(location))) #4.2% values missing!
+#sum(is.na(location))/(sum(is.na(location))+sum(!is.na(location)))  only 4.2% values missing!
 
 ########################################
 ############## 2. Vehicle ##############
@@ -145,7 +145,7 @@ licenses <- rbind(license15,license13.14,license10.12)
 damage15 <- read.table('raw_dmv_data/7 - uva-propertydamage 2015.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 damage13.14 <- read.table('raw_dmv_data/7-uva-damageproperty 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 damage10.12 <- read.table('raw_dmv_data/7 - uva - PropertyDamage 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
-damage <- rbind(damage15,damage13.14,damage10.12)
+propertyDamage <- rbind(damage15,damage13.14,damage10.12)
 
 ########################################
 ############# 8. Commercial ############
@@ -155,6 +155,8 @@ commercial13.14 <- read.table('raw_dmv_data/8-uva-vehiclecommercial 2013-2014.tx
 commercial10.12 <- read.table('raw_dmv_data/8 - uva-vehiclecommercial 2010-2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 commercial10.12 <- commercial10.12[,-c(9)]
 commercial13.14 <- commercial13.14[,-c(9)]
+commercial <- rbind(commercial15,commercial13.14,commercial10.12)
+#likely will not include in analysis
 
 ########################################
 ############## 9. Indicator ############
@@ -163,6 +165,8 @@ indicator15 <- read.table('raw_dmv_data/9 - uva-vt-indicator 2015.txt',sep="~",f
 # 11-14 has CrashDateTime LrgTruck OlderDriverInv MonthName
 indicator11.14 <- read.table('raw_dmv_data/9-uva-vt-indicator-crashid 2011-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 indicator10 <- read.table('raw_dmv_data/9-uvavt--indicator 2010 11-08-13.txt',sep="\t",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
+indicator11.14 <- indicator11.14[,-c(18,19,20,24)]
+#indicator <- rbind(indicator15,indicator11.14,indicator10) # DOES NOT WORK
 
 ########################################
 ############### Merge data #############
