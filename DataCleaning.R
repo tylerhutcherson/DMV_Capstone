@@ -55,7 +55,7 @@ vehicle10$VehicleYear <- NA  #add NA for missing year
 vehicle10 <- vehicle10[,c(1:4,30,5:29)] #reorder
 vehicles <- rbind(vehicle15, vehicle13.14, vehicle11.12, vehicle10)
 
-vehicle$VehicleMake <- toupper(vehicle$VehicleMake)
+vehicles$VehicleMake <- toupper(vehicles$VehicleMake) #make VehicleMake upper case
 ## clean up vehicle make -- NOT going to use
 test <- c()
 for (i in 1:nrow(vehicle)){
@@ -102,6 +102,8 @@ driver10.12 <- read.table('raw_dmv_data/3 -uva-driver 2010-2012.txt',sep="~",fil
 names(driver15)[7] <- "CommercialDriverLicenseID"
 drivers <- rbind(driver15, driver13.14, driver10.12)
 
+drivers <- drivers[,-c(7)] #get rid of commercialdriverlicenseID variable because of so many missing and uselessness
+#sum(is.na(drivers))/(sum(is.na(drivers))+sum(!is.na(drivers)))      only 3.8% missingness across all observations
 
 ########################################
 ############# 4. Passenger #############
@@ -110,7 +112,7 @@ passenger15 <- read.table('raw_dmv_data/4 - uva-passenger 2015.txt',sep="~",fill
 passenger13.14 <- read.table('raw_dmv_data/4-uva-passenger 2013-2014.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 passenger10.12 <- read.table('raw_dmv_data/4 - uva-passsenger 2010 - 2012.txt',sep="~",fill=TRUE,header=T,na.strings = c('',' ',NA),,quote="")
 passenger13.14 <- passenger13.14[,-c(5)]
-passengers < - rbind(passenger15, passenger13.14, passenger10.12)
+passengers <- rbind(passenger15, passenger13.14, passenger10.12)
 
 ########################################
 ############# 5. Pedestrian ############
