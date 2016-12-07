@@ -171,5 +171,28 @@ indicator11.14 <- indicator11.14[,-c(18,19,20,24)]
 ########################################
 ############### Merge data #############
 ########################################
-driver.vehicle <- merge(vehicles, drivers, all.x = TRUE, by=c("CrashId","VehicleId","VehicleDriverId","CrashDate"))
-str(driver.vehicle$CrashDate)
+#driver.vehicle <- merge(vehicles, drivers, all.x = TRUE, by=c("CrashId","VehicleId","VehicleDriverId","CrashDate"))
+#str(driver.vehicle$CrashDate)
+
+
+
+### Remove old dataframes from the environment
+rm(commercial15,commercial10.12,commercial13.14)
+rm(damage15,damage13.14,damage10.12)
+rm(license10.12,license15,license13.14)
+rm(vehicle15,vehicle13.14,vehicle10, vehicle11.12)
+rm(passenger13.14,passenger15,passenger10.12)
+rm(driver10.12,driver13.14,driver15)
+rm(pedestrian10.12,pedestrian13.14,pedestrian15)
+rm(location13,location10.12,location14,location15)
+
+### Write out the merged data frames to csv files for further processing
+write.csv(drivers,"drivers.csv")
+write.csv(location, "location.csv")
+write.csv(vehicles, "vehicles.csv")
+write.csv(passengers, "passengers.csv")
+write.csv(propertyDamage, "propertyDamage.csv")
+write.csv(licenses, "licenses.csv")
+write.csv(commercial, "commercial.csv")
+write.csv(pedestrians, "pedestrians.csv")
+#write.csv(indicators, "indicators.csv")  Not yet
