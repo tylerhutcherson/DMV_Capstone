@@ -1,8 +1,10 @@
 require(dplyr)
 require(tidyr)
 require(ggplot2)
+require(purrr)
+require(scales)
 
-# load in location data
+## load in location data
 #load("/Users/tomoei/Dropbox/DMV project/data/location.Rdata")
 location <- read.csv("location.csv") %>% 
   group_by(Year, CrashTypeName)
@@ -10,9 +12,78 @@ table(location$CrashTypeName)
 crashType = c("Fatal Crash","Injury Crash","Property Damage Crash", NA)
 #sum(is.na(location$CrashTypeName))   121865 unknown crash types (NA)
 
+## load in property damage data
+rates <- c(1.11,1.07,1.05,1.04,1.02,1.02)
+propertyDamage <- read.csv("propertyDamage.csv") %>% 
+  mutate(CrashDate = as.Date(CrashDate,"%m/%d/%Y")) %>% 
+  mutate(Year = CrashDate %>% format('%Y')) %>%
+  mutate(DamagedPropertyRepairCost = DamagedPropertyRepairCost %>% map(function(x){
+    substring(x, 2) %>% 
+      as.numeric() 
+  }) %>% unlist()) 
+
+#adjust for inflation
+for (i in (1:nrow(propertyDamage))){
+  if (is.na(propertyDamage$Year[i])){
+    next()
+  }
+  if (propertyDamage$Year[i] == "2010"){
+    propertyDamage$DamagedPropertyRepairCost[i] = propertyDamage$DamagedPropertyRepairCost[i]*rates[1]
+  }
+  if (propertyDamage$Year[i] == "2011"){
+    propertyDamage$DamagedPropertyRepairCost[i] = propertyDamage$DamagedPropertyRepairCost[i]*rates[2]
+  }
+  if (propertyDamage$Year[i] == "2012"){
+    propertyDamage$DamagedPropertyRepairCost[i] = propertyDamage$DamagedPropertyRepairCost[i]*rates[3]
+  }
+  if (propertyDamage$Year[i] == "2013"){
+    propertyDamage$DamagedPropertyRepairCost[i] = propertyDamage$DamagedPropertyRepairCost[i]*rates[4]
+  }
+  if (propertyDamage$Year[i] == "2014"){
+    propertyDamage$DamagedPropertyRepairCost[i] = propertyDamage$DamagedPropertyRepairCost[i]*rates[5]
+  }
+  if (propertyDamage$Year[i] == "2015"){
+    propertyDamage$DamagedPropertyRepairCost[i] = propertyDamage$DamagedPropertyRepairCost[i]*rates[6]
+  }
+}
+
+#write back out to save the updated version of the data
+write.csv(propertyDamage,"propertyDamage.csv")
+
+# group by Year
+cost_by_year <- group_by(propertyDamage,Year) %>% 
+  summarise(cost=sum(as.numeric(DamagedPropertyRepairCost),na.rm=TRUE), 
+            max_cost=max(as.numeric(DamagedPropertyRepairCost),na.rm=TRUE))
+
+#############################################################################
+#### Scatter plot for Property Damage Cost per year
+theme <- theme(                              
+  axis.title.x = element_text(face="bold", color="black", size=14, family ="serif"),
+  axis.title.y = element_text(face="bold", color="black", size=14, family ="serif"),
+  plot.title = element_text(face="bold", color = "black", size=16, family ="serif")
+)
+
+damage_cost <- ggplot(data=cost_by_year, mapping=aes(x=Year, y=cost)) +
+  geom_point(aes(size=max_cost)) +
+  scale_size_continuous(name ="Max Damage Cost Per Year", range=c(0.5,15), breaks=c(2500000,5000000,7500000), labels=c("$2,500,000","$5,000,000","$7,500,000")) +
+  theme_bw() + theme +
+  labs(title="Property Damage Cost Per Year", x="Year", y="Total Property Damage Cost") +
+  scale_y_continuous(limits = c(0,100000000), breaks=c(0,25000000,50000000,75000000,100000000), labels=c("$0","$25,000,000","$50,000,000","$75,000,000","$100,000,000"))
+  
+ 
+#### Line plot for total crashes per year
+crashes <- read.csv("location.csv") %>% 
+  group_by(Year) %>% 
+  summarise(total_crashes = length(unique(CrashId))) %>% 
+  merge(cost_by_year, by = "Year")
+  
+crash_count <- ggplot(data=crashes, mapping=aes(x=total_crashes,y=cost)) +
+  geom_point(colour="black") +
+  xlim(c(100000,140000))
+  
+#by_year <- summarise(location, n=n())
+#by_year <- na.omit(by_year)
 # plot number of crashes by year (three types in on graph)
-by_year <- summarise(location, n=n())
-by_year <- na.omit(by_year)
 #for (i in c(1:3)){
 #  par(new = TRUE)
 #  plot(by_year$Year[by_year$CrashTypeName == crashType[i]], by_year$n[by_year$CrashTypeName == crashType[i]],
@@ -30,12 +101,12 @@ by_year <- na.omit(by_year)
 #}
 
 # plot by crash type and year (each one individual but on same row)
-par(mfrow=c(1,3))
-for (i in c(1:3)){
-  plot(by_year$Year[by_year$CrashTypeName == crashType[i]], by_year$n[by_year$CrashTypeName == crashType[i]],
-       xlab = "Year", ylab = "Number of crashes", main = crashType[i], col = i,
-       pch = '*', type = "o")
-}
+#par(mfrow=c(1,3))
+#for (i in c(1:3)){
+#  plot(by_year$Year[by_year$CrashTypeName == crashType[i]], by_year$n[by_year$CrashTypeName == crashType[i]],
+#       xlab = "Year", ylab = "Number of crashes", main = crashType[i], col = i,
+#       pch = '*', type = "o")
+#}
 
 # plot by month - fatal crash
 location$CrashDate <- as.character(location$CrashDate)
