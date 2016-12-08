@@ -41,7 +41,7 @@ levels(location14$CrashTypeName) <- c("Fatal Crash","Injury Crash","Property Dam
 location <- rbind(location15, location14, location13, location10.12)
 location <- location[,-c(15)]
 detach("package:plyr", unload=TRUE) 
-#sum(is.na(location))/(sum(is.na(location))+sum(!is.na(location)))  only 4.2% values missing!
+#sum(is.na(location))/(sum(is.na(location))+sum(!is.na(location)))  #only 4.2% values missing!
 
 ########################################
 ############## 2. Vehicle ##############
