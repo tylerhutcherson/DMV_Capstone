@@ -3,14 +3,7 @@ require(tidyr)
 require(ggplot2)
 require(purrr)
 require(scales)
-
-## load in location data
-#load("/Users/tomoei/Dropbox/DMV project/data/location.Rdata")
-location <- read.csv("location.csv") %>% 
-  group_by(Year, CrashTypeName)
-table(location$CrashTypeName)
-crashType = c("Fatal Crash","Injury Crash","Property Damage Crash", NA)
-#sum(is.na(location$CrashTypeName))   121865 unknown crash types (NA)
+require(gridExtra)
 
 ## load in property damage data
 rates <- c(1.11,1.07,1.05,1.04,1.02,1.02)
@@ -55,7 +48,6 @@ cost_by_year <- group_by(propertyDamage,Year) %>%
   summarise(cost=sum(as.numeric(DamagedPropertyRepairCost),na.rm=TRUE), 
             max_cost=max(as.numeric(DamagedPropertyRepairCost),na.rm=TRUE))
 
-#############################################################################
 #### Scatter plot for Property Damage Cost per year
 theme <- theme(                              
   axis.title.x = element_text(face="bold", color="black", size=14, family ="serif"),
@@ -68,18 +60,18 @@ damage_cost <- ggplot(data=cost_by_year, mapping=aes(x=Year, y=cost)) +
   scale_size_continuous(name ="Max Damage Cost Per Year", range=c(0.5,15), breaks=c(2500000,5000000,7500000), labels=c("$2,500,000","$5,000,000","$7,500,000")) +
   theme_bw() + theme +
   labs(title="Property Damage Cost Per Year", x="Year", y="Total Property Damage Cost") +
-  scale_y_continuous(limits = c(0,100000000), breaks=c(0,25000000,50000000,75000000,100000000), labels=c("$0","$25,000,000","$50,000,000","$75,000,000","$100,000,000"))
+  scale_y_continuous(limits = c(0,100000000), breaks=c(0,25000000,50000000,75000000,100000000), labels=c("$0","$25,000,000","$50,000,000","$75,000,000","$100,000,000")) 
   
  
-#### Line plot for total crashes per year
-crashes <- read.csv("location.csv") %>% 
-  group_by(Year) %>% 
-  summarise(total_crashes = length(unique(CrashId))) %>% 
-  merge(cost_by_year, by = "Year")
-  
-crash_count <- ggplot(data=crashes, mapping=aes(x=total_crashes,y=cost)) +
-  geom_point(colour="black") +
-  xlim(c(100000,140000))
+#### Plot for fatal crashes per year ####
+
+## load in location data
+load("location.RData")  #final is loaded into environment
+location <-  group_by(location, Year, CrashTypeName)
+table(location$CrashTypeName)
+crashType = c("Fatal Crash","Injury Crash","Property Damage Crash", NA)
+#(is.na(location$CrashTypeName))   #121865 unknown crash types (NA)
+
   
 #by_year <- summarise(location, n=n())
 #by_year <- na.omit(by_year)
@@ -108,25 +100,56 @@ crash_count <- ggplot(data=crashes, mapping=aes(x=total_crashes,y=cost)) +
 #       pch = '*', type = "o")
 #}
 
-# plot by month - fatal crash
+## plot by month - fatal crash ##
 location$CrashDate <- as.character(location$CrashDate)
-location$month <- lapply(location$CrashDate, function(x) return(strsplit(x,"/")[[1]][1]))
+location$month <- lapply(location$CrashDate, function(x) return(strsplit(x,"/")[[1]][1])) %>% unlist()
 location$month <- as.numeric(location$month)
-#location2 <- group_by(location, Year, month, CrashTypeName)
-#temp <- summarise(location2, sum = n())
-#temp <- na.omit(temp)
+temp <- group_by(location, Year, month, CrashTypeName) %>% 
+  summarise(sum = n()) %>% 
+  na.omit()
 
-#par(mar = rep(2, 4))
-#par(mfrow=c(2,3))
+theme <- theme(                              
+  axis.title.x = element_text(face="plain", color="black", size=11, family ="serif"),
+  axis.title.y = element_text(face="plain", color="black", size=11, family ="serif"),
+  plot.title = element_text(face="bold", color = "black", size=15, family ="serif")
+)
 
-#for (i in c(2010:2015)){
-#  name  = paste(i, " Fatal Crash")
-#  plot(temp$month[temp$CrashTypeName == "Fatal Crash" & temp$Year == i], 
-#       temp$sum[temp$CrashTypeName == "Fatal Crash" & temp$Year == i],
-#       xlab = "Month", ylab = "Number of crashes", main = name,
-#       ylim = c(0,90), col = i-2005,
-#       pch = '*', type = 'o')
-#}
+fatal2010 <- ggplot(data=(temp[temp$Year=="2010" & temp$CrashTypeName == "Fatal Crash",]), mapping= aes(x=month, y=sum)) +
+  geom_line() + geom_point() +
+  theme_bw() + theme +
+  labs(title="2010 Fatal Crashes", x="Month", y="Number of Fatal Crashes") +
+  scale_x_continuous(limits = c(0,12)), breaks=c(1,2,3,4,5,6,7,8,9,10,11,12), labels=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"))
+fatal2011 <- ggplot(data=(temp[temp$Year=="2011" & temp$CrashTypeName == "Fatal Crash",]), mapping= aes(x=month, y=sum)) +
+  geom_line() + geom_point() +
+  theme_bw() + theme +
+  labs(title="2011 Fatal Crashes", x="Month", y="Number of Fatal Crashes") 
+fatal2012 <- ggplot(data=(temp[temp$Year=="2012" & temp$CrashTypeName == "Fatal Crash",]), mapping= aes(x=month, y=sum)) +
+  geom_line() + geom_point() +
+  theme_bw() + theme +
+  labs(title="2012 Fatal Crashes", x="Month", y="Number of Fatal Crashes") 
+fatal2013 <- ggplot(data=(temp[temp$Year=="2013" & temp$CrashTypeName == "Fatal Crash",]), mapping= aes(x=month, y=sum)) +
+  geom_line() + geom_point() +
+  theme_bw() + theme +
+  labs(title="2013 Fatal Crashes", x="Month", y="Number of Fatal Crashes") 
+fatal2014 <- ggplot(data=(temp[temp$Year=="2014" & temp$CrashTypeName == "Fatal Crash",]), mapping= aes(x=month, y=sum)) +
+  geom_line() + geom_point() +
+  theme_bw() + theme +
+  labs(title="2014 Fatal Crashes", x="Month", y="Number of Fatal Crashes") 
+fatal2015 <- ggplot(data=(temp[temp$Year=="2015" & temp$CrashTypeName == "Fatal Crash",]), mapping= aes(x=month, y=sum)) +
+  geom_line() + geom_point() +
+  theme_bw() + theme +
+  labs(title="2015 Fatal Crashes", x="Month", y="Number of Fatal Crashes") 
+
+grid.arrange(fatal2010,fatal2011,fatal2012,fatal2013,fatal2014,fatal2015, nrow=2)
+             
+for (i in c(2015:2010)){
+  name  = paste(i, "Fatal Crashes")
+  plot(temp$month[temp$CrashTypeName == "Fatal Crashes" & temp$Year == i], 
+       temp$sum[temp$CrashTypeName == "Fatal Crashes" & temp$Year == i],
+       xlab = "Month of Year", ylab = "Number of Fatal Frashes", main = name,
+       ylim = c(0,90), col = i-2005,
+       pch = '*', type = 'o')
+}
 
 # plot by month - injury crash
 #par(mar = rep(2, 4))
